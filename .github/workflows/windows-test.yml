@@ -1,0 +1,94 @@
+# Test de Cutlantis sur un vrai Windows (machine GitHub « windows-latest »).
+# Installe l'installateur publié, ouvre l'app, vérifie que le moteur répond, fait une capture
+# d'écran de la fenêtre, puis analyse et exporte une vidéo courte.
+# Lancement : onglet Actions → « Test Windows » → Run workflow, avec le lien de l'installateur.
+name: Test Windows
+
+on:
+  workflow_dispatch:
+    inputs:
+      installer_url:
+        description: "Lien de Cutlantis-Setup-<version>.exe"
+        required: true
+
+jobs:
+  test:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: Télécharger l'installateur
+        shell: pwsh
+        run: Invoke-WebRequest -Uri "${{ inputs.installer_url }}" -OutFile setup.exe
+
+      - name: Installer (silencieux, sans droits administrateur)
+        shell: pwsh
+        run: |
+          Start-Process .\setup.exe -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART' -Wait
+          Test-Path "$env:LOCALAPPDATA\Programs\Cutlantis\runtime\python\pythonw.exe"
+          Get-ChildItem "$env:APPDATA\Microsoft\Windows\Start Menu\Programs" -Filter "Cutlantis*.lnk"
+
+      - name: Ouvrir Cutlantis
+        shell: pwsh
+        run: |
+          $app = "$env:LOCALAPPDATA\Programs\Cutlantis\runtime"
+          Start-Process "$app\python\pythonw.exe" -ArgumentList '-X','utf8','-m','app.desktop' -WorkingDirectory $app
+          $ok = $false
+          for ($i = 0; $i -lt 180; $i++) {
+            try { Invoke-RestMethod http://127.0.0.1:8421/api/licence | ConvertTo-Json; $ok = $true; break }
+            catch { Start-Sleep 1 }
+          }
+          if (-not $ok) { throw "le moteur ne répond pas" }
+          Start-Sleep 10
+          Get-Process | Where-Object { $_.MainWindowTitle -like "*Cutlantis*" } | Format-Table Name, MainWindowTitle
+
+      - name: Capture d'écran de la fenêtre
+        shell: pwsh
+        run: |
+          Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+          $b = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+          $img = New-Object System.Drawing.Bitmap $b.Width, $b.Height
+          $g = [System.Drawing.Graphics]::FromImage($img)
+          $g.CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size)
+          $img.Save("$PWD\cutlantis-windows.png")
+
+      - name: Analyse et export d'une vidéo courte
+        shell: pwsh
+        continue-on-error: true      # YouTube bloque parfois les serveurs des centres de données
+        run: |
+          $base = "http://127.0.0.1:8421/api/projects"
+          $p = Invoke-RestMethod -Method Post -ContentType 'application/json' -Uri $base `
+               -Body '{"url":"https://www.youtube.com/watch?v=jNQXAC9IVRw","n_clips":1}'
+          for ($i = 0; $i -lt 300; $i++) {
+            $s = Invoke-RestMethod "$base/$($p.id)"
+            if ($s.status -in 'ready','error') { break }; Start-Sleep 2
+          }
+          "statut : $($s.status) $($s.error)"
+          $c = $s.clips[0].id
+          Invoke-RestMethod -Method Post "$base/$($p.id)/clips/$c/render" | Out-Null
+          for ($i = 0; $i -lt 300; $i++) {
+            $s = Invoke-RestMethod "$base/$($p.id)"
+            if ($s.clips[0].status -in 'done','error') { break }; Start-Sleep 2
+          }
+          "export : $($s.clips[0].status) $($s.clips[0].render_error)"
+          Get-ChildItem "$env:LOCALAPPDATA\Cutlantis\$($p.id)\clips" | Format-Table Name, Length
+
+      - name: Capture après export
+        if: always()
+        shell: pwsh
+        run: |
+          Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+          $b = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+          $img = New-Object System.Drawing.Bitmap $b.Width, $b.Height
+          [System.Drawing.Graphics]::FromImage($img).CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size)
+          $img.Save("$PWD\cutlantis-windows-apres.png")
+
+      - name: Journal de l'app
+        if: always()
+        shell: pwsh
+        run: Get-Content "$env:LOCALAPPDATA\Cutlantis\logs\cutlantis.log" -Tail 80
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captures-windows
+          path: "*.png"
