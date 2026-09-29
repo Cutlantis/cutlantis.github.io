@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://cutlantis.github.io/sitemap.xml

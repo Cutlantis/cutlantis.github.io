@@ -1,0 +1,63 @@
+{
+ "latest": "1.4.0",
+ "upgrade_price": 15,
+ "upgrade_url": "https://cutlantis.github.io/upgrade.html",
+ "download_page": "https://cutlantis.github.io/download.html",
+ "versions": [
+  {
+   "version": "1.4.0",
+   "date": "2026-09-22",
+   "edition": "2026-01-01",
+   "paid": false,
+   "notes": {
+    "fr": [
+     "Corrigez les sous-titres mot par mot, ou remplacez un nom partout",
+     "Chaînes suivies : les nouvelles vidéos analysées automatiquement",
+     "Montage dynamique : silences coupés, zooms, accroche et teaser",
+     "Twitch, Kick et vos propres fichiers vidéo ou audio",
+     "Podcasts à deux : suivi de la personne qui parle, écran partagé",
+     "Légende prête à copier, avec hashtags",
+     "Votre marque : police, couleurs, filigrane, logo"
+    ],
+    "en": [
+     "Fix captions word by word, or replace a name everywhere",
+     "Watched channels: new videos analyzed automatically",
+     "Dynamic editing: silences cut, zooms, hook and teaser",
+     "Twitch, Kick and your own video or audio files",
+     "Two-person podcasts: follow the speaker, split screen",
+     "Ready-to-copy caption with hashtags",
+     "Your brand: font, colours, watermark, logo"
+    ],
+    "es": [
+     "Corrige los subtítulos palabra por palabra",
+     "Canales seguidos: vídeos nuevos analizados solos",
+     "Edición dinámica: silencios, zooms, gancho y teaser",
+     "Twitch, Kick y tus propios archivos",
+     "Pódcast a dos: seguir a quien habla, pantalla dividida",
+     "Texto listo para copiar con hashtags",
+     "Tu marca: tipografía, colores, marca de agua, logo"
+    ],
+    "ja": [
+     "字幕を単語ごとに修正、名前は一括置換",
+     "チャンネル監視：新しい動画を自動で分析",
+     "ダイナミック編集：無音カット、ズーム、フック、ティーザー",
+     "Twitch・Kick・手元のファイルに対応",
+     "二人のポッドキャスト：話者追従・分割画面",
+     "ハッシュタグ付きの投稿文をコピー",
+     "ブランド：フォント、色、透かし、ロゴ"
+    ],
+    "zh": [
+     "逐词修改字幕，或一键全部替换名字",
+     "频道追踪：新视频自动分析",
+     "动态剪辑：剪掉空白、放大、钩子和预告",
+     "支持 Twitch、Kick 和本地文件",
+     "双人播客：跟随说话人、上下分屏",
+     "可直接复制的文案和话题标签",
+     "你的品牌：字体、颜色、水印、标志"
+    ]
+   },
+   "mac": "https://github.com/cutlantis/cutlantis.github.io/releases/download/v1.4.0/Cutlantis-1.4.0.dmg",
+   "win": "https://github.com/cutlantis/cutlantis.github.io/releases/download/v1.4.0/Cutlantis-Setup-1.4.0.exe"
+  }
+ ]
+}
